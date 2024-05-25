@@ -10,7 +10,7 @@ namespace unrealsdk::unreal {
 #endif
 
 struct FName {
-   public:
+   private:
     int32_t index{0};
     int32_t number{0};
 

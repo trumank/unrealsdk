@@ -48,32 +48,23 @@ void __fastcall process_event_hook(UObject* obj,
         //        func->get_path_name(), obj->get_path_name());
         //}
 
-            //LOG(INFO, "HUH -1 obj={:p} func={:p}", reinterpret_cast<void*>(obj), reinterpret_cast<void*>(func));
         auto data = hook_manager::impl::preprocess_hook("ProcessEvent", func, obj);
-            //LOG(INFO, "HUH 0");
         if (data != nullptr) {
             // Copy args so that hooks can't modify them, for parity with call function
-            //LOG(INFO, "HUH 0.05");
             const WrappedStruct args_base{func, params};
-            //LOG(INFO, "HUH 0.1");
             WrappedStruct args = args_base.copy_params_only();
-            //LOG(INFO, "HUH 0.2");
             hook_manager::Details hook{obj, &args, {func->find_return_param()}, {func, obj}};
-            //LOG(INFO, "HUH 1");
 
             const bool block_execution =
                 hook_manager::impl::run_hooks_of_type(*data, hook_manager::Type::PRE, hook);
-            //LOG(INFO, "HUH 2");
 
             if (!block_execution) {
                 process_event_ptr(obj, func, params, null);
             }
-            //LOG(INFO, "HUH 3");
 
             if (hook.ret.has_value()) {
                 hook.ret.copy_to(reinterpret_cast<uintptr_t>(params));
             }
-            //LOG(INFO, "HUH 4");
 
             if (!hook_manager::impl::has_post_hooks(*data)) {
                 return;
@@ -96,7 +87,6 @@ void __fastcall process_event_hook(UObject* obj,
         LOG(ERROR, "An exception occurred during the ProcessEvent hook: {}", ex.what());
     }
 
-    //LOG(INFO, "process event continuing");
     process_event_ptr(obj, func, params, null);
 }
 static_assert(std::is_same_v<decltype(&process_event_hook), process_event_func>,

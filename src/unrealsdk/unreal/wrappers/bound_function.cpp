@@ -9,13 +9,10 @@
 namespace unrealsdk::unreal {
 
 void BoundFunction::call_with_params(void* params) const {
-    //LOG(INFO, "call_with_params");
     auto original_flags = this->func->FunctionFlags;
     this->func->FunctionFlags |= UFunction::FUNC_NATIVE;
 
     process_event(this->object, this->func, params);
-
-    //LOG(INFO, "call_with_params done");
 
     func->FunctionFlags = original_flags;
 }

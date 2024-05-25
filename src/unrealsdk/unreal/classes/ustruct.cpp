@@ -21,7 +21,6 @@ UStruct::FieldIterator::reference UStruct::FieldIterator::operator*() const {
 }
 
 UStruct::FieldIterator& UStruct::FieldIterator::operator++() {
-    //LOG(INFO, "&field iter++");
     if (this->field != nullptr) {
         this->field = this->field->Next;
     }
@@ -36,7 +35,6 @@ UStruct::FieldIterator& UStruct::FieldIterator::operator++() {
     return *this;
 }
 UStruct::FieldIterator UStruct::FieldIterator::operator++(int) {
-    //LOG(INFO, "field iter++");
     auto tmp = *this;
     ++(*this);
     return tmp;
@@ -138,7 +136,6 @@ size_t UStruct::get_struct_size(void) const {
 
 UField* UStruct::find(const FName& name) const {
     for (auto field : this->fields()) {
-        //LOG(INFO, "field {}", field->Name);
         if (field->Name == name) {
             return field;
         }

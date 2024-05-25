@@ -114,7 +114,6 @@ class BoundFunction {
         if constexpr (std::is_void_v<R>) {
             // Do nothing
         } else {
-            //LOG(INFO, "get_return_value");
             auto ret = this->func->find_return_param();
             if (ret == nullptr) {
                 throw std::runtime_error("Couldn't find return param!");
@@ -124,11 +123,8 @@ class BoundFunction {
                     "Function has static array return param - unsure how to handle, aborting!");
             }
 
-            //LOG(INFO, "get_return_value {:p}", reinterpret_cast<void*>(ret));
-            auto ret2 = get_property<R>(validate_type<R>(ret), 0,
+            return get_property<R>(validate_type<R>(ret), 0,
                                    reinterpret_cast<uintptr_t>(params.base.get()), params.base);
-            //LOG(INFO, "get_return_value ret2");
-            return ret2;
         }
     }
 
@@ -145,11 +141,8 @@ class BoundFunction {
      */
     template <typename R, typename... Ts>
     call_return_type<R> call(const typename PropTraits<Ts>::Value&... args) {
-        //LOG(INFO, "call 1");
         WrappedStruct params{this->func};
-        //LOG(INFO, "constrct");
         write_params<Ts...>(params, args...);
-        //LOG(INFO, "write params");
 
         this->call_with_params(params.base.get());
         if constexpr (!std::is_void_v<R>) {
@@ -158,7 +151,6 @@ class BoundFunction {
     }
     template <typename R>
     call_return_type<R> call(WrappedStruct& params) {
-        //LOG(INFO, "call 2");
         if (params.type != this->func) {
             throw std::runtime_error(
                 "Tried to call function with pre-filled parameters of incorrect type: "

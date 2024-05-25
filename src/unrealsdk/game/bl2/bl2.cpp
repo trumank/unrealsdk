@@ -73,25 +73,22 @@ void BL2Hook::fname_init(FName* name, const wchar_t* str, int32_t number) const 
 namespace {
 
 // NOLINTNEXTLINE(modernize-use-using)
-typedef void(__thiscall* fframe_step_func)(FFrame* stack, UObject* obj, void* param);
+typedef void(__thiscall* fframe_step_func)(UObject* obj, FFrame* stack, void* param);
 fframe_step_func fframe_step_ptr;
 
-const constinit Pattern<9> FFRAME_STEP_SIG{
-    "55"        // push ebp
-    "8B EC"     // mov ebp, esp
-    "8B 41 ??"  // mov eax, [ecx+18]
-    "0FB6 10"   // movzx edx, byte ptr [eax]
+const constinit Pattern<30> FFRAME_STEP_SIG{
+    // matches multiple but the first is the one we want anyway
+    "48 8b 42 24 48 ff c0 44 0f b6 48 ff 48 89 42 24 41 8b c1 4c 8d 0d ?? ?? ?? ?? 49 ff 24 c1"
 };
 
 }  // namespace
 
 void BL2Hook::find_fframe_step(void) {
-    //fframe_step_ptr = FFRAME_STEP_SIG.sigscan<fframe_step_func>();
-    fframe_step_ptr = reinterpret_cast<fframe_step_func>(0x14006c240);
+    fframe_step_ptr = FFRAME_STEP_SIG.sigscan<fframe_step_func>();
     LOG(MISC, "FFrame::Step: {:p}", reinterpret_cast<void*>(fframe_step_ptr));
 }
 void BL2Hook::fframe_step(FFrame* frame, UObject* obj, void* param) const {
-    fframe_step_ptr(frame, obj, param);
+    fframe_step_ptr(obj, frame, param);
 }
 
 #pragma endregion

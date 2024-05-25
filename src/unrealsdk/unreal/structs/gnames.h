@@ -55,9 +55,6 @@ struct FNameEntry {
     [[nodiscard]] bool is_wide(void) const;
 };
 
-//#include <cstddef>
-//static_assert(0x14 == offsetof(FNameEntry, AnsiName), "asdf");
-
 
 #ifdef UE4
 

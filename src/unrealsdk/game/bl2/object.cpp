@@ -32,31 +32,14 @@ typedef UObject*(__cdecl* construct_obj_func)(UClass* cls,
                                               void* instance_graph);
 construct_obj_func construct_obj_ptr;
 
-const constinit Pattern<49> CONSTRUCT_OBJECT_PATTERN{
-    "55"              // push ebp
-    "8B EC"           // mov ebp, esp
-    "6A FF"           // push -01
-    "68 ????????"     // push Borderlands2.exe+1107DCB
-    "64 A1 ????????"  // mov eax, fs:[00000000]
-    "50"              // push eax
-    "83 EC 10"        // sub esp, 10
-    "53"              // push ebx
-    "56"              // push esi
-    "57"              // push edi
-    "A1 ????????"     // mov eax, [Borderlands2.g_LEngineDefaultPoolId+B2DC]
-    "33 C5"           // xor eax, ebp
-    "50"              // push eax
-    "8D 45 ??"        // lea eax, [ebp-0C]
-    "64 A3 ????????"  // mov fs:[00000000], eax
-    "8B 7D ??"        // mov edi, [ebp+08]
-    "8A 87 ????????"  // mov al, [edi+000001CC]
+const constinit Pattern<19> CONSTRUCT_OBJECT_PATTERN{
+    "48 8B C4 4C 89 40 ?? 57 41 54 41 55 48 81 EC 80 00 00 00"
 };
 
 }  // namespace
 
 void BL2Hook::find_construct_object(void) {
-    //construct_obj_ptr = CONSTRUCT_OBJECT_PATTERN.sigscan<construct_obj_func>();
-    construct_obj_ptr = reinterpret_cast<construct_obj_func>(0x1400f4af0);
+    construct_obj_ptr = CONSTRUCT_OBJECT_PATTERN.sigscan<construct_obj_func>();
     LOG(MISC, "StaticConstructObject: {:p}", reinterpret_cast<void*>(construct_obj_ptr));
 }
 
@@ -65,7 +48,7 @@ UObject* BL2Hook::construct_object(UClass* cls,
                                    const FName& name,
                                    decltype(UObject::ObjectFlags) flags,
                                    UObject* template_obj) const {
-    return construct_obj_ptr(cls, outer, name, flags, template_obj, (void*)0x1425285a0, nullptr, nullptr);
+    return construct_obj_ptr(cls, outer, name, flags, template_obj, nullptr, nullptr, nullptr);
 }
 
 #pragma endregion
@@ -79,7 +62,6 @@ std::wstring BL2Hook::uobject_path_name(const UObject* obj) const {
     if (pathname_func == nullptr) {
         pathname_func = obj->Class->find_func_and_validate(L"PathName"_fn);
     }
-    //LOG(INFO, "pathname_func = {:p}", reinterpret_cast<void*>(pathname_func));
 
     // Bound functions need mutable references, since they might actually modify the object
     // Object properties need mutable references, since you may want to modify the object you get

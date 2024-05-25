@@ -7,9 +7,6 @@
 
 namespace unrealsdk::unreal {
 
-typedef void (* execFn)(class UObject*, struct FFrame*, void*);
-typedef execFn GNatives[0x1000];
-
 uint8_t* FFrame::extract_current_args(WrappedStruct& args) {
     auto args_addr = reinterpret_cast<uintptr_t>(args.base.get());
     uint8_t* original_code = this->Code;
@@ -21,12 +18,8 @@ uint8_t* FFrame::extract_current_args(WrappedStruct& args) {
             continue;
         }
 
-        uint16_t inst = *(reinterpret_cast<uint16_t*>(this->Code++));
-        auto gn = reinterpret_cast<GNatives*>(0x142551690);
-        (*gn)[inst](this->Object, this, reinterpret_cast<void*>(args_addr + prop->Offset_Internal));
-
-        //unrealsdk::fframe_step(this, this->Object,
-        //                       reinterpret_cast<void*>(args_addr + prop->Offset_Internal));
+        unrealsdk::fframe_step(this, this->Object,
+                               reinterpret_cast<void*>(args_addr + prop->Offset_Internal));
     }
 
     return original_code;

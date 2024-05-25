@@ -40,7 +40,6 @@ const constexpr auto INJECT_CONSOLE_TYPE = hook_manager::Type::PRE;
 const std::wstring INJECT_CONSOLE_ID = L"unrealsdk_bl2_inject_console";
 
 bool say_bypass_hook(hook_manager::Details& hook) {
-    LOG(INFO, "Say bypass hook");
     static const auto console_command_func =
         hook.obj->Class->find_func_and_validate(L"ConsoleCommand"_fn);
     static const auto command_property =
@@ -52,7 +51,6 @@ bool say_bypass_hook(hook_manager::Details& hook) {
 }
 
 bool console_command_hook(hook_manager::Details& hook) {
-    LOG(INFO, "Console command hook");
     static const auto command_property =
         hook.args->type->find_prop_and_validate<UStrProperty>(L"Command"_fn);
 
