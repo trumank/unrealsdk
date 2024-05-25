@@ -9,7 +9,7 @@
 #include "unrealsdk/unreal/structs/ftext.h"
 #include "unrealsdk/version_error.h"
 
-#if defined(UE3) && defined(ARCH_X86) && !defined(UNREALSDK_IMPORTING)
+#if defined(UE3) && defined(ARCH_X64) && !defined(UNREALSDK_IMPORTING)
 
 using namespace unrealsdk::memory;
 using namespace unrealsdk::unreal;
@@ -47,14 +47,8 @@ void BL2Hook::hook(void) {
 
 namespace {
 
-const constinit Pattern<23> FNAME_INIT_SIG{
-    "55"              // push ebp
-    "8B EC"           // mov ebp, esp
-    "6A FF"           // push -01
-    "68 ????????"     // push Borderlands2.exe+110298B
-    "64 A1 ????????"  // mov eax, fs:[00000000]
-    "50"              // push eax
-    "81 EC 9C0C0000"  // sub esp, 00000C9C
+const constinit Pattern<19> FNAME_INIT_SIG{
+    "40 55 56 57 41 54 41 55 41 56 41 57 48 81 EC D0 0C 00 00"
 };
 
 }
@@ -92,7 +86,8 @@ const constinit Pattern<9> FFRAME_STEP_SIG{
 }  // namespace
 
 void BL2Hook::find_fframe_step(void) {
-    fframe_step_ptr = FFRAME_STEP_SIG.sigscan<fframe_step_func>();
+    //fframe_step_ptr = FFRAME_STEP_SIG.sigscan<fframe_step_func>();
+    fframe_step_ptr = reinterpret_cast<fframe_step_func>(0x14006c240);
     LOG(MISC, "FFrame::Step: {:p}", reinterpret_cast<void*>(fframe_step_ptr));
 }
 void BL2Hook::fframe_step(FFrame* frame, UObject* obj, void* param) const {

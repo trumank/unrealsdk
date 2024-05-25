@@ -85,17 +85,23 @@ class UProperty : public UField {
 
     int32_t ArrayDim;
     int32_t ElementSize;
-    uint32_t PropertyFlags;
+    uint64_t PropertyFlags;
+
 
    private:
-    uint8_t UnknownData00[0x14];
+    uint16_t RepOffset;
+    uint16_t RepIndex;
+    FName Category;
+    uint32_t ArraySizeEnumA;
+    uint32_t ArraySizeEnumB;
 
    public:
     int32_t Offset_Internal;
-    UProperty* PropertyLinkNext;
+    class UProperty* PropertyLinkNext;
 
    private:
-    uint8_t UnknownData01[0x18];
+    class UProperty* ConstructorLinkNext;
+    class UProperty* NextRef;
 
     /**
      * @brief Gets the size of this class.

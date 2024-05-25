@@ -17,7 +17,7 @@
 #include "unrealsdk/unreal/wrappers/unreal_pointer_funcs.h"
 #include "unrealsdk/unreal/wrappers/wrapped_struct.h"
 
-#if defined(UE3) && defined(ARCH_X86) && !defined(UNREALSDK_IMPORTING)
+#if defined(UE3) && defined(ARCH_X64) && !defined(UNREALSDK_IMPORTING)
 
 using namespace unrealsdk::unreal;
 
@@ -35,11 +35,12 @@ const std::wstring CONSOLE_COMMAND_FUNC = L"Engine.Console:ConsoleCommand";
 const constexpr auto CONSOLE_COMMAND_TYPE = hook_manager::Type::PRE;
 const std::wstring CONSOLE_COMMAND_ID = L"unrealsdk_bl2_console_command";
 
-const std::wstring INJECT_CONSOLE_FUNC = L"WillowGame.WillowGameViewportClient:PostRender";
+const std::wstring INJECT_CONSOLE_FUNC = L"SpitfireGame.RGameViewportClient:PostRender";
 const constexpr auto INJECT_CONSOLE_TYPE = hook_manager::Type::PRE;
 const std::wstring INJECT_CONSOLE_ID = L"unrealsdk_bl2_inject_console";
 
 bool say_bypass_hook(hook_manager::Details& hook) {
+    LOG(INFO, "Say bypass hook");
     static const auto console_command_func =
         hook.obj->Class->find_func_and_validate(L"ConsoleCommand"_fn);
     static const auto command_property =
@@ -51,6 +52,7 @@ bool say_bypass_hook(hook_manager::Details& hook) {
 }
 
 bool console_command_hook(hook_manager::Details& hook) {
+    LOG(INFO, "Console command hook");
     static const auto command_property =
         hook.args->type->find_prop_and_validate<UStrProperty>(L"Command"_fn);
 
@@ -122,9 +124,14 @@ bool console_command_hook(hook_manager::Details& hook) {
 BoundFunction console_output_text{};
 
 bool inject_console_hook(hook_manager::Details& hook) {
+    LOG(INFO, "Injecting console");
     hook_manager::remove_hook(INJECT_CONSOLE_FUNC, INJECT_CONSOLE_TYPE, INJECT_CONSOLE_ID);
+    LOG(INFO, "hook removed");
+    LOG(INFO, "obj {}", hook.obj->Name);
 
     auto console = hook.obj->get<UObjectProperty>(L"ViewportConsole"_fn);
+    LOG(INFO, "console: {:p}", reinterpret_cast<void*>(console));
+    return false;
 
     // Grab this reference ASAP
     console_output_text = console->get<UFunction, BoundFunction>(L"OutputText"_fn);
@@ -150,6 +157,7 @@ void BL2Hook::inject_console(void) {
                            &console_command_hook);
     hook_manager::add_hook(INJECT_CONSOLE_FUNC, INJECT_CONSOLE_TYPE, INJECT_CONSOLE_ID,
                            &inject_console_hook);
+    LOG(INFO, "Set up console hooks");
 }
 
 void BL2Hook::uconsole_output_text(const std::wstring& str) const {

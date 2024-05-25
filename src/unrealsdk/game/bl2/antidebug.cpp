@@ -2,7 +2,7 @@
 
 #include "unrealsdk/game/bl2/bl2.h"
 
-#if defined(UE3) && defined(ARCH_X86) && !defined(UNREALSDK_IMPORTING)
+#if defined(UE3) && defined(ARCH_X64) && !defined(UNREALSDK_IMPORTING)
 
 namespace unrealsdk::game {
 

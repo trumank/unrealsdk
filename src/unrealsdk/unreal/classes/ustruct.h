@@ -64,6 +64,7 @@ class UStruct : public UField {
 #else
    private:
     uint8_t UnknownData00[0x8];
+    uint8_t UnknownData000[0x8];
 
    public:
     UStruct* SuperField;

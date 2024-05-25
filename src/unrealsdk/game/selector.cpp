@@ -21,7 +21,8 @@ namespace {
 #ifdef UE4
 using all_known_games = std::tuple<BL3Hook>;
 #else
-#error No known games for UE3 x64
+using all_known_games = std::tuple<BL2Hook>;
+//#error No known games for UE3 x64
 #endif
 #else
 #ifdef UE4

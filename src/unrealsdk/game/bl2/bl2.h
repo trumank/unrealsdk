@@ -6,7 +6,7 @@
 #include "unrealsdk/game/abstract_hook.h"
 #include "unrealsdk/game/selector.h"
 
-#if defined(UE3) && defined(ARCH_X86) && !defined(UNREALSDK_IMPORTING)
+#if defined(UE3) && defined(ARCH_X64) && !defined(UNREALSDK_IMPORTING)
 
 namespace unrealsdk::game {
 
@@ -119,7 +119,7 @@ struct GameTraits<BL2Hook> {
     static constexpr auto NAME = "Borderlands 2";
 
     static bool matches_executable(std::string_view executable) {
-        return executable == "Borderlands2.exe" || executable == "TinyTina.exe";
+        return executable == "Borderlands2.exe" || executable == "TinyTina.exe" || executable == "SpitfireGame.exe";
     }
 };
 

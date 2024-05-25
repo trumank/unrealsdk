@@ -67,6 +67,7 @@ template <typename T>
                                                          uintptr_t base_addr,
                                                          const UnrealPointer<void>& parent = {
                                                              nullptr}) {
+            //LOG(INFO, "get_property");
     if (idx > (size_t)prop->ArrayDim) {
         throw std::out_of_range("Property index out of range");
     }

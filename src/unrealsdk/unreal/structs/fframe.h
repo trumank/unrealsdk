@@ -40,8 +40,10 @@ struct FOutputDevice {
     uint32_t bAutoEmitLineTerminator;
 };
 
-struct FFrame : public FOutputDevice {
+struct FFrame /*: public FOutputDevice*/ {
     static constexpr const auto EXPR_TOKEN_END_FUNCTION_PARAMS = 0x16;
+
+    uint8_t padding1[0x14];
 
     UFunction* Node;
     UObject* Object;
@@ -67,7 +69,7 @@ struct FFrame : public FOutputDevice {
      * @return The original position of `Code`.
      */
     uint8_t* extract_current_args(WrappedStruct& args);
-};
+} __attribute__((packed));
 
 // NOLINTEND(readability-identifier-naming)
 

@@ -4,7 +4,7 @@
 #include "unrealsdk/memory.h"
 #include "unrealsdk/unreal/alignment.h"
 
-#if defined(UE3) && defined(ARCH_X86) && !defined(UNREALSDK_IMPORTING)
+#if defined(UE3) && defined(ARCH_X64) && !defined(UNREALSDK_IMPORTING)
 
 using namespace unrealsdk::memory;
 using namespace unrealsdk::unreal;
@@ -21,9 +21,10 @@ namespace {
 struct FMalloc;
 struct FMallocVFtable {
     void* exec;
-    void*(__thiscall* u_malloc)(FMalloc* self, uint32_t len, uint32_t align);
-    void*(__thiscall* u_realloc)(FMalloc* self, void* original, uint32_t len, uint32_t align);
-    void*(__thiscall* u_free)(FMalloc* self, void* data);
+    void* quantize_size;
+    void*(* u_malloc)(FMalloc* self, uint32_t len, uint32_t align);
+    void*(* u_realloc)(FMalloc* self, void* original, uint32_t len, uint32_t align);
+    void*(* u_free)(FMalloc* self, void* data);
 };
 struct FMalloc {
     FMallocVFtable* vftable;
@@ -35,11 +36,10 @@ struct FMalloc {
 
 FMalloc* gmalloc;
 
-const constinit Pattern<8> GMALLOC_PATTERN{
-    "89 35 ????????"  // mov [Borderlands2.GDebugger+A95C], esi
-    "FF D7"           // call edi
+const constinit Pattern<36> GMALLOC_PATTERN{
+    "40 53 48 83 EC 20 48 8B D9 48 8B 0D ?? ?? ?? ?? 48 85 C9 75 ?? E8 ?? ?? ?? ?? 48 8B 0D ?? ?? ?? ?? 48 8B 01"
     ,
-    2};
+    12};
 
 }  // namespace
 

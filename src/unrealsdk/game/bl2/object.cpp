@@ -10,7 +10,7 @@
 #include "unrealsdk/unreal/structs/fname.h"
 #include "unrealsdk/unreal/wrappers/bound_function.h"
 
-#if defined(UE3) && defined(ARCH_X86) && !defined(UNREALSDK_IMPORTING)
+#if defined(UE3) && defined(ARCH_X64) && !defined(UNREALSDK_IMPORTING)
 
 using namespace unrealsdk::unreal;
 using namespace unrealsdk::memory;
@@ -28,8 +28,8 @@ typedef UObject*(__cdecl* construct_obj_func)(UClass* cls,
                                               uint64_t flags,
                                               UObject* template_obj,
                                               void* error_output_device,
-                                              void* instance_graph,
-                                              uint32_t assume_template_is_archetype);
+                                              void* suboject_root,
+                                              void* instance_graph);
 construct_obj_func construct_obj_ptr;
 
 const constinit Pattern<49> CONSTRUCT_OBJECT_PATTERN{
@@ -55,7 +55,8 @@ const constinit Pattern<49> CONSTRUCT_OBJECT_PATTERN{
 }  // namespace
 
 void BL2Hook::find_construct_object(void) {
-    construct_obj_ptr = CONSTRUCT_OBJECT_PATTERN.sigscan<construct_obj_func>();
+    //construct_obj_ptr = CONSTRUCT_OBJECT_PATTERN.sigscan<construct_obj_func>();
+    construct_obj_ptr = reinterpret_cast<construct_obj_func>(0x1400f4af0);
     LOG(MISC, "StaticConstructObject: {:p}", reinterpret_cast<void*>(construct_obj_ptr));
 }
 
@@ -64,8 +65,7 @@ UObject* BL2Hook::construct_object(UClass* cls,
                                    const FName& name,
                                    decltype(UObject::ObjectFlags) flags,
                                    UObject* template_obj) const {
-    return construct_obj_ptr(cls, outer, name, flags, template_obj, nullptr, nullptr,
-                             0 /* false */);
+    return construct_obj_ptr(cls, outer, name, flags, template_obj, (void*)0x1425285a0, nullptr, nullptr);
 }
 
 #pragma endregion
@@ -79,6 +79,7 @@ std::wstring BL2Hook::uobject_path_name(const UObject* obj) const {
     if (pathname_func == nullptr) {
         pathname_func = obj->Class->find_func_and_validate(L"PathName"_fn);
     }
+    //LOG(INFO, "pathname_func = {:p}", reinterpret_cast<void*>(pathname_func));
 
     // Bound functions need mutable references, since they might actually modify the object
     // Object properties need mutable references, since you may want to modify the object you get

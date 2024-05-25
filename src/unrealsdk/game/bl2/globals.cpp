@@ -5,7 +5,7 @@
 #include "unrealsdk/unreal/wrappers/gnames.h"
 #include "unrealsdk/unreal/wrappers/gobjects.h"
 
-#if defined(UE3) && defined(ARCH_X86) && !defined(UNREALSDK_IMPORTING)
+#if defined(UE3) && defined(ARCH_X64) && !defined(UNREALSDK_IMPORTING)
 
 using namespace unrealsdk::memory;
 using namespace unrealsdk::unreal;
@@ -16,18 +16,17 @@ namespace {
 
 GObjects gobjects_wrapper{};
 
-const constinit Pattern<17> GOBJECTS_SIG{
-    "8B 0D ????????"  // mov ecx, [Borderlands2.exe+1682BD0]
-    "8B 04 ??"        // mov eax, [ecx+esi*4]
-    "8B 40 ??"        // mov eax, [eax+08]
-    "25 00020000"     // and eax, 00000200
+const constinit Pattern<19> GOBJECTS_SIG{
+    "63 44 24 ?? 85 C0 78 ?? 3B 05 ?? ?? ?? ?? 7D ?? 48 8B C8"
     ,
-    2};
+    10};
 
 }  // namespace
 
 void BL2Hook::find_gobjects(void) {
-    auto gobjects_ptr = read_offset<GObjects::internal_type>(GOBJECTS_SIG.sigscan());
+    auto gobject_res = GOBJECTS_SIG.sigscan();
+    LOG(MISC, "GObjects scan: {}", gobject_res);
+    auto gobjects_ptr = reinterpret_cast<GObjects::internal_type>(read_offset(gobject_res) - 8);
     LOG(MISC, "GObjects: {:p}", reinterpret_cast<void*>(gobjects_ptr));
 
     gobjects_wrapper = GObjects(gobjects_ptr);
@@ -41,17 +40,15 @@ namespace {
 
 GNames gnames_wrapper{};
 
-const constinit Pattern<10> GNAMES_SIG{
-    "A3 ????????"  // mov [BorderlandsPreSequel.exe+1520214], eax
-    "8B 45 ??"     // mov eax, [ebp+10]
-    "89 03"        // mov [ebx], eax
+const constinit Pattern<16> GNAMES_SIG{
+    "48 8B DA 48 8B F1 85 FF 78 ?? 8B 05 ????????"
     ,
-    1};
+    12};
 
 }  // namespace
 
 void BL2Hook::find_gnames(void) {
-    auto gnames_ptr = read_offset<GNames::internal_type>(GNAMES_SIG.sigscan());
+    auto gnames_ptr = reinterpret_cast<GNames::internal_type>(read_offset(GNAMES_SIG.sigscan()) - 8);
     LOG(MISC, "GNames: {:p}", reinterpret_cast<void*>(gnames_ptr));
 
     gnames_wrapper = GNames(gnames_ptr);
