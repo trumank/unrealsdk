@@ -44,9 +44,9 @@ class UFunction : public UStruct {
     void* Func;
 #else
     uint32_t FunctionFlags;
+    uint16_t iNative;
 
    private:
-    uint16_t iNative;
     uint16_t RepOffset;
     FName FriendlyName;
     uint8_t OperPrecedence;
